@@ -9,15 +9,18 @@ const ContactForm = ({ setContacts, contacts }) => {
     const [phone, setPhone] = useState('');
     const [status, setStatus] = useState('Interested');
 
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!name || !email) return alert("Name and Email are required");
 
         try {
-            const res = await axios.post("http://localhost:5000/contacts", {
+            const res = await axios.post(`${backendUrl}/contacts`, {
                 name, company, email, phone, status,
             });
+
             setContacts([res.data, ...contacts]);
             setName("");
             setCompany("");
@@ -27,7 +30,8 @@ const ContactForm = ({ setContacts, contacts }) => {
         } catch (error) {
             console.log(error);
         }
-    }
+    };
+
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">

@@ -7,12 +7,17 @@ const ContactList = ({ setContacts, contacts }) => {
     const [filter, setFilter] = useState('');
     const [search, setSearch] = useState('');
 
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+
     useEffect(() => {
         const fetchContacts = async () => {
             setLoading(true);
             const query = `?status=${filter}&search=${search}`;
             try {
-                const res = await axios.get(`http://localhost:5000/contacts${query}`);
+                const res = await axios.get(`${backendUrl}/contacts${query}`);
+
+
                 setContacts(res.data);
             } catch (error) {
                 console.log(error);
@@ -25,7 +30,9 @@ const ContactList = ({ setContacts, contacts }) => {
 
     const handleStatusChange = async (id, newStatus) => {
         try {
-            await axios.put(`http://localhost:5000/contacts/${id}`, { status: newStatus });
+            await axios.put(`${backendUrl}/contacts/${id}`, { status: newStatus });
+
+
             setContacts(contacts.map(contact => contact._id === id ? { ...contact, status: newStatus } : contact));
         } catch (error) {
             console.log("Error updating status:", error);
@@ -35,7 +42,9 @@ const ContactList = ({ setContacts, contacts }) => {
     const handleDelete = async (id) => {
         if (confirm("Are you sure you want to delete?")) {
             try {
-                await axios.delete(`http://localhost:5000/contacts/${id}`);
+              await axios.delete(`${backendUrl}/contacts/${id}`);
+
+
                 setContacts(contacts.filter(contact => contact._id !== id));
             } catch (error) {
                 console.log("Error deleting contact:", error);
@@ -50,7 +59,7 @@ const ContactList = ({ setContacts, contacts }) => {
                 <div className="relative">
 
                     <select
-                        className="p-2 pr-6 rounded bg-[#00277a] text-white cursor-pointer outline-0 appearance-none"
+                        className="p-2 pr- rounded bg-[#00277a] text-white cursor-pointer outline-0 appearance-none"
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}
                     >
