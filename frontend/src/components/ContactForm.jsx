@@ -13,7 +13,6 @@ const ContactForm = ({ setContacts, contacts }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (!name || !email) return alert("Name and Email are required");
 
         try {
@@ -22,18 +21,20 @@ const ContactForm = ({ setContacts, contacts }) => {
             });
 
             const updatedContacts = await axios.get(`${backendUrl}/contacts`);
-             setContacts(updatedContacts.data);
-            
-            
+            setContacts(updatedContacts.data);
+
             setName("");
             setCompany("");
             setEmail("");
             setPhone("");
             setStatus("Interested");
         } catch (error) {
-            console.log(error);
+            console.error("Submit error:", error);
         }
     };
+
+
+
 
 
     return (

@@ -16,17 +16,14 @@ const ContactList = ({ setContacts, contacts }) => {
             const query = `?status=${filter}&search=${search}`;
             try {
                 const res = await axios.get(`${backendUrl}/contacts${query}`);
-
-
                 setContacts(res.data);
             } catch (error) {
                 console.log(error);
             }
-            await new Promise((resolve) => setTimeout(resolve, 1000));
             setLoading(false);
         };
         fetchContacts();
-    }, [filter, search, setContacts]);
+    }, [filter, search]);
 
     const handleStatusChange = async (id, newStatus) => {
         try {
@@ -42,7 +39,7 @@ const ContactList = ({ setContacts, contacts }) => {
     const handleDelete = async (id) => {
         if (confirm("Are you sure you want to delete?")) {
             try {
-              await axios.delete(`${backendUrl}/contacts/${id}`);
+                await axios.delete(`${backendUrl}/contacts/${id}`);
 
 
                 setContacts(contacts.filter(contact => contact._id !== id));
@@ -59,7 +56,7 @@ const ContactList = ({ setContacts, contacts }) => {
                 <div className="relative">
 
                     <select
-                        className="p-2 pr- rounded bg-[#00277a] text-white cursor-pointer outline-0 appearance-none"
+                        className="p-2 pr-8 rounded bg-[#00277a] text-white cursor-pointer outline-0 appearance-none"
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}
                     >
