@@ -16,14 +16,22 @@ const ContactList = ({ setContacts, contacts }) => {
             const query = `?status=${filter}&search=${search}`;
             try {
                 const res = await axios.get(`${backendUrl}/contacts${query}`);
-                setContacts(res.data);
+                console.log("API response:", res.data); // 👈 see what backend returns
+                if (Array.isArray(res.data)) {
+                    setContacts(res.data);
+                } else {
+                    setContacts([]); // fallback
+                }
             } catch (error) {
-                console.log(error);
+                console.error("Fetch error:", error);
+                setContacts([]); // prevent crash
             }
             setLoading(false);
         };
+
         fetchContacts();
-    }, [filter, search]);
+    }, [filter, search, setContacts, backendUrl]);
+
 
     const handleStatusChange = async (id, newStatus) => {
         try {
@@ -86,7 +94,7 @@ const ContactList = ({ setContacts, contacts }) => {
                 </div>
             ) : (
                 <div className="grid grid-cols-2 gap-10 mt-4">
-                    {contacts.length === 0 ? (
+                    {(contacts || []).length === 0 ? (
                         <div className="col-span-2 text-center text-[#00277a] font-semibold">
                             No contacts found.
                         </div>
