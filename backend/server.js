@@ -6,7 +6,8 @@ import contactRoutes from './routes/contactRoutes.js'
 
 dotenv.config();
 const app = express();
-app.use(cors({ origin: '*' }));
+app.use(cors({ origin: process.env.FRONTEND_URL }));
+
 app.use(express.json());
 const port =process.env.PORT || 5000;
 app.use('/contacts',contactRoutes)

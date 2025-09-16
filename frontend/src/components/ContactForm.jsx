@@ -21,8 +21,7 @@ const ContactForm = ({ setContacts, contacts }) => {
                 name, company, email, phone, status,
             });
 
-            const updatedContacts = await axios.get(`${backendUrl}/contacts`);
-            setContacts(updatedContacts.data);
+           
             
             setContacts([res.data, ...contacts]);
             setName("");
