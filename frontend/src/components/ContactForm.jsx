@@ -37,13 +37,6 @@ const ContactForm = ({ setContacts, contacts }) => {
         }
     };
 
-
-
-
-
-
-
-
     return (
         <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
             <input type="text" placeholder="Name"
