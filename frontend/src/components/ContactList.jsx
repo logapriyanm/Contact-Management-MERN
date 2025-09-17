@@ -13,18 +13,24 @@ const ContactList = ({ setContacts, contacts }) => {
     useEffect(() => {
         const fetchContacts = async () => {
             setLoading(true);
-            const query = `?status=${filter}&search=${search}`;
+
+            let query = "";
+            const params = new URLSearchParams();
+            if (filter) params.append("status", filter);
+            if (search) params.append("search", search);
+            if (params.toString()) query = `?${params.toString()}`;
+
             try {
                 const res = await axios.get(`${backendUrl}/contacts${query}`);
-                console.log("API response:", res.data); // 👈 see what backend returns
+                console.log("API response:", res.data); // 👀 debug
                 if (Array.isArray(res.data)) {
                     setContacts(res.data);
                 } else {
-                    setContacts([]); // fallback
+                    setContacts([]);
                 }
             } catch (error) {
                 console.error("Fetch error:", error);
-                setContacts([]); // prevent crash
+                setContacts([]);
             }
             setLoading(false);
         };
@@ -33,10 +39,10 @@ const ContactList = ({ setContacts, contacts }) => {
     }, [filter, search, setContacts, backendUrl]);
 
 
+
     const handleStatusChange = async (id, newStatus) => {
         try {
             await axios.put(`${backendUrl}/contacts/${id}`, { status: newStatus });
-
 
             setContacts(contacts.map(contact => contact._id === id ? { ...contact, status: newStatus } : contact));
         } catch (error) {

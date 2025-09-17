@@ -13,25 +13,32 @@ const ContactForm = ({ setContacts, contacts }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log("Submitting:", { name, company, email, phone, status, backendUrl }); // 👀
+
         if (!name || !email) return alert("Name and Email are required");
 
         try {
-            const res = await axios.post(`${backendUrl}/contacts`, {
-                name, company, email, phone, status,
+            await axios.post(`${backendUrl}/contacts`, {
+                name,
+                company,
+                email,
+                phone,
+                status,
             });
-
-            const updatedContacts = await axios.get(`${backendUrl}/contacts`);
-            setContacts(updatedContacts.data);
-
+            const refreshed = await axios.get(`${backendUrl}/contacts`);
+            setContacts(refreshed.data);
             setName("");
             setCompany("");
             setEmail("");
             setPhone("");
             setStatus("Interested");
         } catch (error) {
-            console.error("Submit error:", error);
+            console.error("Submit error:", error.response?.data || error.message);
         }
     };
+
+
+
 
 
 
@@ -71,7 +78,7 @@ const ContactForm = ({ setContacts, contacts }) => {
                 </div>
             </div>
 
-            <button type="submit" className="text-white px-4 py-3 rounded hover:bg-[#001a52] bg-[#00277a] cursor-pointer transition w-full mt-[10px]">
+            <button type="submit" className="text-white px-4 py-3 rounded hover:bg-[#001a52] bg-[#00277a] cursor-pointer transition w-full mt-[10px]" >
                 Submit
             </button>
         </form>

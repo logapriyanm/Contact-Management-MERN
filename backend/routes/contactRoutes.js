@@ -3,15 +3,17 @@ import Contact from "../models/Contact.js";
 
 const router = express.Router();
 
+// POST /contacts
 router.post("/", async (req, res) => {
   try {
     const contact = new Contact(req.body);
-    await contact.save();
-    res.status(201).json(contact);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+    const savedContact = await contact.save();
+    res.status(201).json(savedContact);  // ✅ return full contact object
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 });
+
 
 router.get("/", async (req, res) => {
   try {
