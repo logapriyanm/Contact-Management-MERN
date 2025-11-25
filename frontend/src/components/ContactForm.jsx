@@ -1,81 +1,163 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { IoIosArrowDropdownCircle } from "react-icons/io";
+import { FiMail, FiPhone } from "react-icons/fi";
 
-const ContactForm = ({ setContacts, contacts }) => {
-    const [name, setName] = useState('');
-    const [company, setCompany] = useState('');
-    const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
-    const [status, setStatus] = useState('Interested');
+const ContactForm = ({ setContacts }) => {
+  const [name, setName] = useState("");
+  const [company, setCompany] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [status, setStatus] = useState("Interested");
+  const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState(null);
 
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL ?? "";
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        console.log("Submitting:", { name, company, email, phone, status, backendUrl }); // 👀
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage(null);
 
-        if (!name || !email) return alert("Name and Email are required");
+    if (!name.trim() || !email.trim()) {
+      setMessage({ type: "error", text: "Name and Email are required." });
+      return;
+    }
 
-        try {
-            await axios.post(`${backendUrl}/contacts`, {
-                name,
-                company,
-                email,
-                phone,
-                status,
-            });
-            const refreshed = await axios.get(`${backendUrl}/contacts`);
-            setContacts(refreshed.data);
-            setName("");
-            setCompany("");
-            setEmail("");
-            setPhone("");
-            setStatus("Interested");
-        } catch (error) {
-            console.error("Submit error:", error.response?.data || error.message);
-        }
-    };
+    if (!backendUrl) {
+      setMessage({ type: "error", text: "Backend URL not configured." });
+      return;
+    }
 
-    return (
-        <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
-            <input type="text" placeholder="Name"
-                className="bg-[#eff4ff] p-3 rounded w-full text-[#0c002b] outline-0"
-                value={name} onChange={(e) => setName(e.target.value)} />
+    setSubmitting(true);
+    try {
+      await axios.post(`${backendUrl}/contacts`, { name, company, email, phone, status });
+      const res = await axios.get(`${backendUrl}/contacts`);
+      setContacts(Array.isArray(res.data) ? res.data : []);
+      setName("");
+      setCompany("");
+      setEmail("");
+      setPhone("");
+      setStatus("Interested");
+      setMessage({ type: "success", text: "Contact saved." });
+    } catch (err) {
+      console.error("Submit error:", err);
+      setMessage({ type: "error", text: "Failed to save contact." });
+    } finally {
+      setSubmitting(false);
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
 
-            <input type="text" placeholder="Company"
-                className="bg-[#eff4ff] p-3 rounded w-full text-[#0c002b] outline-0"
-                value={company} onChange={(e) => setCompany(e.target.value)} />
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm"
+    >
+      {message && (
+        <div
+          role="status"
+          className={`px-3 py-2 rounded text-sm ${message.type === "success" ? "bg-green-50 text-green-800 dark:bg-green-900/30" : "bg-red-50 text-red-800 dark:bg-red-900/30"}`}
+        >
+          {message.text}
+        </div>
+      )}
 
-            <input type="text" placeholder="Email"
-                className="bg-[#eff4ff] p-3 rounded w-full text-[#0c002b] outline-0"
-                value={email} onChange={(e) => setEmail(e.target.value)} />
+      <div className="flex items-center justify-between mb-1">
+        <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Add Contact</h2>
+      </div>
 
-            <input type="tel" placeholder="Phone"
-                className="bg-[#eff4ff] p-3 rounded w-full text-[#0c002b] outline-0"
-                value={phone} onChange={(e) => setPhone(e.target.value)} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <label className="flex flex-col">
+          <span className="text-sm text-slate-600 dark:text-slate-300 mb-1">Name *</span>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Full name"
+            className="p-3 rounded-md bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none"
+            required
+            aria-label="Name"
+          />
+        </label>
 
+        <label className="flex flex-col">
+          <span className="text-sm text-slate-600 dark:text-slate-300 mb-1">Company</span>
+          <input
+            type="text"
+            value={company}
+            onChange={(e) => setCompany(e.target.value)}
+            placeholder="Company / Organization"
+            className="p-3 rounded-md bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none"
+            aria-label="Company"
+          />
+        </label>
+      </div>
 
-            <div className="relative">
-                <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                    className="bg-[#eff4ff] p-3 rounded w-full text-[#0c002b] outline-0 appearance-none cursor-pointer"
-                >
-                    <option value="Interested">Interested</option>
-                    <option value="Follow-up">Follow-up</option>
-                    <option value="Closed">Closed</option>
-                </select>
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">
-                    <IoIosArrowDropdownCircle size={20} />
-                </div>
-            </div>
+      <div className="flex flex-col gap-3">
+        <label className="flex flex-col">
+          <span className="text-sm text-slate-600 dark:text-slate-300 mb-1">Email *</span>
+          <div className="relative">
+            <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-300" />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@domain.com"
+              className="pl-10 p-3 rounded-md w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none"
+              required
+              aria-label="Email"
+            />
+          </div>
+        </label>
 
-            <button type="submit" className="text-white px-4 py-3 rounded hover:bg-[#001a52] bg-[#00277a] cursor-pointer transition w-full mt-[10px]" >
-                Submit
-            </button>
-        </form>
-    );
-}
+        <label className="flex flex-col">
+          <span className="text-sm text-slate-600 dark:text-slate-300 mb-1">Phone</span>
+          <div className="relative">
+            <FiPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-300" />
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+91 98765 43210"
+              className="pl-10 p-3 rounded-md w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none"
+              aria-label="Phone"
+            />
+          </div>
+        </label>
+      </div>
+
+      <div className="relative">
+        <label className="flex flex-col">
+          <span className="text-sm text-slate-600 dark:text-slate-300 mb-1">Status</span>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="p-3 rounded-md bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 appearance-none pr-9"
+            aria-label="Status"
+          >
+            <option>Interested</option>
+            <option>Follow-up</option>
+            <option>Closed</option>
+          </select>
+        </label>
+
+        <div className="absolute right-3 top-3/5 transform -translate-y-1/2 text-slate-500 dark:text-slate-300 pointer-events-none">
+          <IoIosArrowDropdownCircle size={18} />
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        disabled={submitting}
+        className={`w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-md text-white font-medium transition ${
+          submitting ? "bg-sky-300 cursor-wait" : "bg-sky-600 hover:bg-sky-700"
+        }`}
+        aria-label="Submit contact"
+      >
+        {submitting ? "Saving..." : "Submit"}
+      </button>
+    </form>
+  );
+};
 
 export default ContactForm;

@@ -1,1 +1,33 @@
 @import "tailwindcss";
+
+/* src/index.css */
+
+
+/* optional: smooth background transition */
+:root {
+  --bg: theme(colors.white);
+}
+
+html, body, #root { height: 100%; }
+
+body {
+  @apply bg-white text-slate-800;
+  transition: background-color .2s, color .2s;
+}
+
+/* dark styles will be applied automatically by Tailwind classes when .dark is on <html> */
+html.dark body {
+  @apply bg-slate-900 text-slate-200;
+}
+
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: none; /* some browsers */
+}
+
+/* Hide IE/Edge dropdown arrow */
+select::-ms-expand {
+  display: none;
+}
